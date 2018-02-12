@@ -27,7 +27,7 @@ def CopyFiles(src, dest, files):
     builder.AddCopy(source_path, dest_entry)
 
 # Include files
-CopyFiles('include', 'addons/sourcemod/scripting/include',
+CopyFiles('../addons/sourcemod/scripting/include', 'addons/sourcemod/scripting/include',
   [ 'outputinfo.inc', ]
 )
 
