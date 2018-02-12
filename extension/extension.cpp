@@ -179,16 +179,16 @@ cell_t GetOutputActionTarget(IPluginContext *pContext, const cell_t *params)
 	if(pEntityOutput == NULL || pEntityOutput->m_ActionList == NULL)
 		return 0;
 
-	CEventAction *pActionList = pEntityOutput->m_ActionList;
+	CEventAction *pAction = pEntityOutput->m_ActionList;
 	for(int i = 0; i < params[3]; i++)
 	{
-		if(pActionList->m_pNext == NULL)
+		if( pAction->m_pNext == NULL)
 			return 0;
 
-		pActionList = pActionList->m_pNext;
+		pAction = pAction->m_pNext;
 	}
 
-	pContext->StringToLocal(params[4], params[5], pActionList->m_iTarget.ToCStr());
+	pContext->StringToLocal(params[4], params[5], pAction->m_iTarget.ToCStr());
 
 	return 1;
 }
@@ -209,16 +209,16 @@ cell_t GetOutputActionTargetInput(IPluginContext *pContext, const cell_t *params
 	if (pEntityOutput == NULL || pEntityOutput->m_ActionList == NULL)
 		return 0;
 
-	CEventAction *pActionList = pEntityOutput->m_ActionList;
+	CEventAction *pAction = pEntityOutput->m_ActionList;
 	for(int i = 0; i < params[3]; i++)
 	{
-		if(pActionList->m_pNext == NULL)
+		if( pAction->m_pNext == NULL)
 			return 0;
 
-		pActionList = pActionList->m_pNext;
+		pAction = pAction->m_pNext;
 	}
 
-	pContext->StringToLocal(params[4], params[5], pActionList->m_iTargetInput.ToCStr());
+	pContext->StringToLocal(params[4], params[5], pAction->m_iTargetInput.ToCStr());
 
 	return 1;
 }
@@ -239,16 +239,16 @@ cell_t GetOutputActionParameter(IPluginContext *pContext, const cell_t *params)
 	if (pEntityOutput == NULL || pEntityOutput->m_ActionList == NULL)
 		return 0;
 
-	CEventAction *pActionList = pEntityOutput->m_ActionList;
+	CEventAction *pAction = pEntityOutput->m_ActionList;
 	for(int i = 0; i < params[3]; i++)
 	{
-		if(pActionList->m_pNext == NULL)
+		if( pAction->m_pNext == NULL)
 			return 0;
 
-		pActionList = pActionList->m_pNext;
+		pAction = pAction->m_pNext;
 	}
 
-	pContext->StringToLocal(params[4], params[5], pActionList->m_iParameter.ToCStr());
+	pContext->StringToLocal(params[4], params[5], pAction->m_iParameter.ToCStr());
 
 	return 1;
 }
@@ -269,16 +269,16 @@ cell_t GetOutputActionDelay(IPluginContext *pContext, const cell_t *params)
 	if (pEntityOutput == NULL || pEntityOutput->m_ActionList == NULL)
 		return -1.0f;
 
-	CEventAction *pActionList = pEntityOutput->m_ActionList;
+	CEventAction *pAction = pEntityOutput->m_ActionList;
 	for(int i = 0; i < params[3]; i++)
 	{
-		if(pActionList->m_pNext == NULL)
+		if( pAction->m_pNext == NULL)
 			return -1.0f;
 
-		pActionList = pActionList->m_pNext;
+		pAction = pAction->m_pNext;
 	}
 
-	return *(cell_t *)&pActionList->m_flDelay;
+	return sp_ctof( pAction->m_flDelay);
 }
 
 
