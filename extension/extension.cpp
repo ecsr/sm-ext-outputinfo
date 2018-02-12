@@ -144,7 +144,7 @@ inline CBaseEntityOutput *GetOutput(CBaseEntity *pEntity, const char *pOutput)
 	return (CBaseEntityOutput *)((intptr_t)pEntity + Offset);
 }
 
-cell_t GetOutputCount(IPluginContext *pContext, const cell_t *params)
+cell_t GetOutputActionCount(IPluginContext *pContext, const cell_t *params)
 {
 	char *pOutput;
 	pContext->LocalToString(params[2], &pOutput);
@@ -158,7 +158,7 @@ cell_t GetOutputCount(IPluginContext *pContext, const cell_t *params)
 	return pEntityOutput->NumberOfElements();
 }
 
-cell_t GetOutputTarget(IPluginContext *pContext, const cell_t *params)
+cell_t GetOutputActionTarget(IPluginContext *pContext, const cell_t *params)
 {
 	char *pOutput;
 	pContext->LocalToString(params[2], &pOutput);
@@ -183,7 +183,7 @@ cell_t GetOutputTarget(IPluginContext *pContext, const cell_t *params)
 	return 1;
 }
 
-cell_t GetOutputTargetInput(IPluginContext *pContext, const cell_t *params)
+cell_t GetOutputActionTargetInput(IPluginContext *pContext, const cell_t *params)
 {
 	char *pOutput;
 	pContext->LocalToString(params[2], &pOutput);
@@ -208,7 +208,7 @@ cell_t GetOutputTargetInput(IPluginContext *pContext, const cell_t *params)
 	return 1;
 }
 
-cell_t GetOutputParameter(IPluginContext *pContext, const cell_t *params)
+cell_t GetOutputActionParameter(IPluginContext *pContext, const cell_t *params)
 {
 	char *pOutput;
 	pContext->LocalToString(params[2], &pOutput);
@@ -233,7 +233,7 @@ cell_t GetOutputParameter(IPluginContext *pContext, const cell_t *params)
 	return 1;
 }
 
-cell_t GetOutputDelay(IPluginContext *pContext, const cell_t *params)
+cell_t GetOutputActionDelay(IPluginContext *pContext, const cell_t *params)
 {
 	char *pOutput;
 	pContext->LocalToString(params[2], &pOutput);
@@ -259,11 +259,11 @@ cell_t GetOutputDelay(IPluginContext *pContext, const cell_t *params)
 
 const sp_nativeinfo_t MyNatives[] =
 {
-	{ "GetOutputCount", GetOutputCount },
-	{ "GetOutputTarget", GetOutputTarget },
-	{ "GetOutputTargetInput", GetOutputTargetInput },
-	{ "GetOutputParameter", GetOutputParameter },
-	{ "GetOutputDelay", GetOutputDelay },
+	{ "GetOutputActionCount", GetOutputActionCount },
+	{ "GetOutputActionTarget", GetOutputActionTarget },
+	{ "GetOutputActionTargetInput", GetOutputActionTargetInput },
+	{ "GetOutputActionParameter", GetOutputActionParameter },
+	{ "GetOutputActionDelay", GetOutputActionDelay },
 	{ NULL, NULL },
 };
 

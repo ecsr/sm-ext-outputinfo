@@ -3,11 +3,66 @@
 #endif
 #define _OutputInfo_Included
 
-native int GetOutputCount(int entity, const char[] output);
-native bool GetOutputTarget(int entity, const char[] output, int index, char[] target, int maxlen);
-native bool GetOutputTargetInput(int entity, const char[] output, int index, char[] targetinput, int maxlen);
-native bool GetOutputParameter(int entity, const char[] output, int index, char[] parameter, int maxlen);
-native float GetOutputDelay(int entity, const char[] output, int index);
+/**
+ * Gets the number of actions for given output
+ * Note that this can change if an action has been deleted due to being used more than TimesToFire
+ *
+ * @param entity		Entity to use
+ * @param output		The name of the output (e.g. m_OnTrigger)
+ *
+ * @return				Number of actions for that entity output
+ */
+native int GetOutputActionCount(int entity, const char[] output);
+
+/**
+ * Gets the target of an output action
+ *
+ * @param entity		Entity to use
+ * @param output		The name of the output (e.g. m_OnTrigger)
+ * @param index			The index of the action to use
+ * @param target		Output string buffer
+ * @param maxlen		Max length of output string buffer
+ 
+ * @return				True on success, false otherwise
+ */
+native bool GetOutputActionTarget(int entity, const char[] output, int index, char[] target, int maxlen);
+
+/**
+ * Gets the target input of an output action
+ *
+ * @param entity		Entity to use
+ * @param output		The name of the output (e.g. m_OnTrigger)
+ * @param index			The index of the action to use
+ * @param targetinput	Output string buffer
+ * @param maxlen		Max length of output string buffer
+ 
+ * @return				True on success, false otherwise
+ */
+native bool GetOutputActionTargetInput(int entity, const char[] output, int index, char[] targetinput, int maxlen);
+
+/**
+ * Gets the parameter of an output action
+ *
+ * @param entity		Entity to use
+ * @param output		The name of the output (e.g. m_OnTrigger)
+ * @param index			The index of the action to use
+ * @param parameter		Output string buffer
+ * @param maxlen		Max length of output string buffer
+ 
+ * @return				True on success, false otherwise
+ */
+native bool GetOutputActionParameter(int entity, const char[] output, int index, char[] parameter, int maxlen);
+
+/**
+ * Gets the delay of an output action
+ *
+ * @param entity		Entity to use
+ * @param output		The name of the output (e.g. m_OnTrigger)
+ * @param index			The index of the action to use
+ 
+ * @return				Delay in seconds
+ */
+native float GetOutputActionDelay(int entity, const char[] output, int index);
 
 /**
  * Do not edit below this line!
