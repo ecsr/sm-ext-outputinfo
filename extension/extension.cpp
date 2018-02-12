@@ -178,11 +178,9 @@ cell_t GetOutputTarget(IPluginContext *pContext, const cell_t *params)
 		pActionList = pActionList->m_pNext;
 	}
 
-	int Len = strlen(pActionList->m_iTarget.ToCStr());
+	pContext->StringToLocal(params[4], params[5], pActionList->m_iTarget.ToCStr());
 
-	pContext->StringToLocal(params[4], Len + 1, pActionList->m_iTarget.ToCStr());
-
-	return Len;
+	return 1;
 }
 
 cell_t GetOutputTargetInput(IPluginContext *pContext, const cell_t *params)
@@ -205,11 +203,9 @@ cell_t GetOutputTargetInput(IPluginContext *pContext, const cell_t *params)
 		pActionList = pActionList->m_pNext;
 	}
 
-	int Len = strlen(pActionList->m_iTargetInput.ToCStr());
+	pContext->StringToLocal(params[4], params[5], pActionList->m_iTargetInput.ToCStr());
 
-	pContext->StringToLocal(params[4], Len + 1, pActionList->m_iTargetInput.ToCStr());
-
-	return Len;
+	return 1;
 }
 
 cell_t GetOutputParameter(IPluginContext *pContext, const cell_t *params)
@@ -232,11 +228,9 @@ cell_t GetOutputParameter(IPluginContext *pContext, const cell_t *params)
 		pActionList = pActionList->m_pNext;
 	}
 
-	int Len = strlen(pActionList->m_iParameter.ToCStr());
+	pContext->StringToLocal(params[4], params[5], pActionList->m_iParameter.ToCStr());
 
-	pContext->StringToLocal(params[4], Len + 1, pActionList->m_iParameter.ToCStr());
-
-	return Len;
+	return 1;
 }
 
 cell_t GetOutputDelay(IPluginContext *pContext, const cell_t *params)
