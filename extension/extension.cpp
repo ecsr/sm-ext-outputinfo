@@ -278,17 +278,45 @@ cell_t GetOutputActionDelay(IPluginContext *pContext, const cell_t *params)
 		pAction = pAction->m_pNext;
 	}
 
-	return sp_ctof( pAction->m_flDelay);
+	return sp_ftoc(pAction->m_flDelay);
 }
 
+cell_t GetOutputActionTimesToFire(IPluginContext *pContext, const cell_t *params)
+{
+	char *pOutput;
+	pContext->LocalToString(params[2], &pOutput);
+
+	CBaseEntity *pEntity = gamehelpers->ReferenceToEntity(params[1]);
+	if (!pEntity)
+	{
+		return pContext->ThrowNativeError("Invalid Entity index %i (%i)", gamehelpers->ReferenceToIndex(params[1]), params[1]);
+	}
+
+	CBaseEntityOutput *pEntityOutput = GetOutput(pEntity, pOutput);
+
+	if (pEntityOutput == NULL || pEntityOutput->m_ActionList == NULL)
+		return 0;
+
+	CEventAction *pAction = pEntityOutput->m_ActionList;
+	for(int i = 0; i < params[3]; i++)
+	{
+		if( pAction->m_pNext == NULL)
+			return 0;
+
+		pAction = pAction->m_pNext;
+	}
+
+	return pAction->m_nTimesToFire;
+}
 
 const sp_nativeinfo_t MyNatives[] =
 {
-	{ "GetOutputActionCount", GetOutputActionCount },
-	{ "GetOutputActionTarget", GetOutputActionTarget },
-	{ "GetOutputActionTargetInput", GetOutputActionTargetInput },
-	{ "GetOutputActionParameter", GetOutputActionParameter },
-	{ "GetOutputActionDelay", GetOutputActionDelay },
+	{ "GetOutputActionCount",		GetOutputActionCount },
+	{ "GetOutputActionTarget",		GetOutputActionTarget },
+	{ "GetOutputActionTargetInput",	GetOutputActionTargetInput },
+	{ "GetOutputActionParameter",	GetOutputActionParameter },
+	{ "GetOutputActionDelay",		GetOutputActionDelay },
+	{ "GetOutputActionTimesToFire",	GetOutputActionTimesToFire },
 	{ NULL, NULL },
 };
 

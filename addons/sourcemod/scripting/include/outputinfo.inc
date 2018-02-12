@@ -3,6 +3,8 @@
 #endif
 #define _OutputInfo_Included
 
+#define EVENT_FIRE_ALWAYS -1
+
 /**
  * Gets the number of actions for given output
  * Note that this can change if an action has been deleted due to being used more than TimesToFire
@@ -15,7 +17,8 @@
 native int GetOutputActionCount(int entity, const char[] output);
 
 /**
- * Gets the target of an output action
+ * Gets the name of the entity(s) to cause the action in
+ * !activator = entity that activated output, !caller = entity that called output
  *
  * @param entity		Entity to use
  * @param output		The name of the output (e.g. m_OnTrigger)
@@ -28,7 +31,7 @@ native int GetOutputActionCount(int entity, const char[] output);
 native bool GetOutputActionTarget(int entity, const char[] output, int index, char[] target, int maxlen);
 
 /**
- * Gets the target input of an output action
+ * Gets the name of the action to fire
  *
  * @param entity		Entity to use
  * @param output		The name of the output (e.g. m_OnTrigger)
@@ -41,7 +44,7 @@ native bool GetOutputActionTarget(int entity, const char[] output, int index, ch
 native bool GetOutputActionTargetInput(int entity, const char[] output, int index, char[] targetinput, int maxlen);
 
 /**
- * Gets the parameter of an output action
+ * Gets the parameter to send, 0 if none
  *
  * @param entity		Entity to use
  * @param output		The name of the output (e.g. m_OnTrigger)
@@ -54,7 +57,7 @@ native bool GetOutputActionTargetInput(int entity, const char[] output, int inde
 native bool GetOutputActionParameter(int entity, const char[] output, int index, char[] parameter, int maxlen);
 
 /**
- * Gets the delay of an output action
+ * Gets the number of seconds to wait before firing the action
  *
  * @param entity		Entity to use
  * @param output		The name of the output (e.g. m_OnTrigger)
@@ -63,6 +66,18 @@ native bool GetOutputActionParameter(int entity, const char[] output, int index,
  * @return				Delay in seconds, or -1.0 on failure
  */
 native float GetOutputActionDelay(int entity, const char[] output, int index);
+
+/**
+ * Gets the amount of times left for an action to fire
+ * When this counter reaches 0, the action is removed from the outputs action list
+ *
+ * @param entity		Entity to use
+ * @param output		The name of the output (e.g. m_OnTrigger)
+ * @param index			The index of the action to use
+ 
+ * @return				How many times to fire, or EVENT_FIRE_ALWAYS if it fires indefinitely
+ */
+native int GetOutputActionTimesToFire(int entity, const char[] output, int index);
 
 /**
  * Do not edit below this line!
