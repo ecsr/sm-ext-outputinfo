@@ -149,7 +149,12 @@ cell_t GetOutputActionCount(IPluginContext *pContext, const cell_t *params)
 	char *pOutput;
 	pContext->LocalToString(params[2], &pOutput);
 
-	CBaseEntity *pEntity = gamehelpers->ReferenceToEntity(gamehelpers->IndexToReference(params[1]));
+	CBaseEntity *pEntity = gamehelpers->ReferenceToEntity(params[1]);
+	if (!pEntity)
+	{
+		return pContext->ThrowNativeError("Invalid Entity index %i (%i)", gamehelpers->ReferenceToIndex(params[1]), params[1]);
+	}
+
 	CBaseEntityOutput *pEntityOutput = GetOutput(pEntity, pOutput);
 
 	if(pEntityOutput == NULL)
@@ -163,7 +168,12 @@ cell_t GetOutputActionTarget(IPluginContext *pContext, const cell_t *params)
 	char *pOutput;
 	pContext->LocalToString(params[2], &pOutput);
 
-	CBaseEntity *pEntity = gamehelpers->ReferenceToEntity(gamehelpers->IndexToReference(params[1]));
+	CBaseEntity *pEntity = gamehelpers->ReferenceToEntity(params[1]);
+	if (!pEntity)
+	{
+		return pContext->ThrowNativeError("Invalid Entity index %i (%i)", gamehelpers->ReferenceToIndex(params[1]), params[1]);
+	}
+
 	CBaseEntityOutput *pEntityOutput = GetOutput(pEntity, pOutput);
 
 	if(pEntityOutput == NULL || pEntityOutput->m_ActionList == NULL)
@@ -188,7 +198,12 @@ cell_t GetOutputActionTargetInput(IPluginContext *pContext, const cell_t *params
 	char *pOutput;
 	pContext->LocalToString(params[2], &pOutput);
 
-	CBaseEntity *pEntity = gamehelpers->ReferenceToEntity(gamehelpers->IndexToReference(params[1]));
+	CBaseEntity *pEntity = gamehelpers->ReferenceToEntity(params[1]);
+	if (!pEntity)
+	{
+		return pContext->ThrowNativeError("Invalid Entity index %i (%i)", gamehelpers->ReferenceToIndex(params[1]), params[1]);
+	}
+
 	CBaseEntityOutput *pEntityOutput = GetOutput(pEntity, pOutput);
 
 	if (pEntityOutput == NULL || pEntityOutput->m_ActionList == NULL)
@@ -213,7 +228,12 @@ cell_t GetOutputActionParameter(IPluginContext *pContext, const cell_t *params)
 	char *pOutput;
 	pContext->LocalToString(params[2], &pOutput);
 
-	CBaseEntity *pEntity = gamehelpers->ReferenceToEntity(gamehelpers->IndexToReference(params[1]));
+	CBaseEntity *pEntity = gamehelpers->ReferenceToEntity(params[1]);
+	if (!pEntity)
+	{
+		return pContext->ThrowNativeError("Invalid Entity index %i (%i)", gamehelpers->ReferenceToIndex(params[1]), params[1]);
+	}
+
 	CBaseEntityOutput *pEntityOutput = GetOutput(pEntity, pOutput);
 
 	if (pEntityOutput == NULL || pEntityOutput->m_ActionList == NULL)
@@ -238,17 +258,22 @@ cell_t GetOutputActionDelay(IPluginContext *pContext, const cell_t *params)
 	char *pOutput;
 	pContext->LocalToString(params[2], &pOutput);
 
-	CBaseEntity *pEntity = gamehelpers->ReferenceToEntity(gamehelpers->IndexToReference(params[1]));
+	CBaseEntity *pEntity = gamehelpers->ReferenceToEntity(params[1]);
+	if (!pEntity)
+	{
+		return pContext->ThrowNativeError("Invalid Entity index %i (%i)", gamehelpers->ReferenceToIndex(params[1]), params[1]);
+	}
+
 	CBaseEntityOutput *pEntityOutput = GetOutput(pEntity, pOutput);
 
 	if (pEntityOutput == NULL || pEntityOutput->m_ActionList == NULL)
-		return -1;
+		return -1.0f;
 
 	CEventAction *pActionList = pEntityOutput->m_ActionList;
 	for(int i = 0; i < params[3]; i++)
 	{
 		if(pActionList->m_pNext == NULL)
-			return -1;
+			return -1.0f;
 
 		pActionList = pActionList->m_pNext;
 	}

@@ -60,7 +60,7 @@ native bool GetOutputActionParameter(int entity, const char[] output, int index,
  * @param output		The name of the output (e.g. m_OnTrigger)
  * @param index			The index of the action to use
  
- * @return				Delay in seconds
+ * @return				Delay in seconds, or -1.0 on failure
  */
 native float GetOutputActionDelay(int entity, const char[] output, int index);
 
