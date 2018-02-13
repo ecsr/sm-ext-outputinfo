@@ -110,7 +110,8 @@ native float GetOutputActionDelay(int entity, const char[] output, int index);
  * @param entity		Entity to use
  * @param output		The name of the output (e.g. m_OnTrigger)
  * @param index			The index of the action to use
- 
+ * @param value			Delay in seconds
+
  * @return				True on success, false otherwise
  */
 native bool SetOutputActionDelay(int entity, const char[] output, int index, float value);
@@ -134,10 +135,11 @@ native int GetOutputActionTimesToFire(int entity, const char[] output, int index
  * @param entity		Entity to use
  * @param output		The name of the output (e.g. m_OnTrigger)
  * @param index			The index of the action to use
- 
- * @return				How many times to fire, or EVENT_FIRE_ALWAYS if it fires indefinitely
+ * @param value			How many times to fire, or 
+
+ * @return				True on success, false otherwise
  */
-native int SetOutputActionTimesToFire(int entity, const char[] output, int index, int value);
+native bool SetOutputActionTimesToFire(int entity, const char[] output, int index, int value);
 
 /**
  * Do not edit below this line!
