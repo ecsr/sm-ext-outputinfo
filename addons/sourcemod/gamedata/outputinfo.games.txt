@@ -1,0 +1,31 @@
+"Games"
+{
+	"csgo"
+	{
+		"Addresses"
+		{
+			"g_EntityListPool"
+			{
+				"windows"
+				{
+					"signature" "g_EntityListPool.Alloc"
+					"read" "2"
+				}
+				"linux"
+				{
+					"signature" "" // yet to be found
+					"read" ""
+				}
+			}
+		}
+		
+		"Signatures"
+		{
+			"g_EntityListPool.Alloc"
+			{
+				"library"	"server"
+				"windows"	"\x83\x3D\x2A\x2A\x2A\x2A\x1C\x73\x2A"
+			}
+		}
+	}
+}

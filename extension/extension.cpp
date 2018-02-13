@@ -42,13 +42,16 @@ SMEXT_LINK(&g_Outputinfo);
 
 #include <isaverestore.h>
 #include <variant_t.h>
+#include <itoolentity.h>
+
+IServerTools *servertools = nullptr;
 
 #define EVENT_FIRE_ALWAYS	-1
 
 class CEventAction
 {
 public:
-	CEventAction( const char *ActionData = NULL );
+	CEventAction(const char *ActionData = NULL);
 
 	string_t m_iTarget; // name of the entity(s) to cause the action in
 	string_t m_iTargetInput; // the name of the action to fire
@@ -134,14 +137,45 @@ inline int GetDataMapOffset(CBaseEntity *pEnt, const char *pName)
 #endif
 }
 
+string_t AllocPooledString(const char *pszValue)
+{
+	// This is admittedly a giant hack, but it's a relatively safe method for
+	// inserting a string into the game's string pool that isn't likely to break.
+	//
+	// We find the first valid ent (should always be worldspawn), save off it's
+	// current targetname string_t, set it to our string to insert via SetKeyValue,
+	// read back the new targetname value, restore the old value, and return the new one.
+
+	CBaseEntity *pEntity = reinterpret_cast<IServerUnknown *>(servertools->FirstEntity())->GetBaseEntity();
+	auto *pDataMap = gamehelpers->GetDataMap(pEntity);
+	assert(pDataMap);
+
+	static int offset = -1;
+	if (offset == -1)
+	{
+		sm_datatable_info_t info;
+		bool found = gamehelpers->FindDataMapInfo(pDataMap, "m_iName", &info);
+		assert(found);
+		offset = info.actual_offset;
+	}
+
+	string_t *pProp = (string_t *) ((intp) pEntity + offset);
+	string_t backup = *pProp;
+	servertools->SetKeyValue(pEntity, "targetname", pszValue);
+	string_t newString = *pProp;
+	*pProp = backup;
+
+	return newString;
+}
+
 inline CBaseEntityOutput *GetOutput(CBaseEntity *pEntity, const char *pOutput)
 {
-	int Offset = GetDataMapOffset(pEntity, pOutput);
+	int offset = GetDataMapOffset(pEntity, pOutput);
 
-	if(Offset == -1)
-		return NULL;
+	if(offset == -1)
+		return nullptr;
 
-	return (CBaseEntityOutput *)((intptr_t)pEntity + Offset);
+	return (CBaseEntityOutput *)((intptr_t)pEntity + offset);
 }
 
 cell_t GetOutputActionCount(IPluginContext *pContext, const cell_t *params)
@@ -193,6 +227,38 @@ cell_t GetOutputActionTarget(IPluginContext *pContext, const cell_t *params)
 	return 1;
 }
 
+cell_t SetOutputActionTarget(IPluginContext *pContext, const cell_t *params)
+{
+	char *pOutput;
+	pContext->LocalToString(params[2], &pOutput);
+
+	CBaseEntity *pEntity = gamehelpers->ReferenceToEntity(params[1]);
+	if (!pEntity)
+	{
+		return pContext->ThrowNativeError("Invalid Entity index %i (%i)", gamehelpers->ReferenceToIndex(params[1]), params[1]);
+	}
+
+	CBaseEntityOutput *pEntityOutput = GetOutput(pEntity, pOutput);
+
+	if(pEntityOutput == NULL || pEntityOutput->m_ActionList == NULL)
+		return 0;
+
+	CEventAction *pAction = pEntityOutput->m_ActionList;
+	for(int i = 0; i < params[3]; i++)
+	{
+		if( pAction->m_pNext == NULL)
+			return 0;
+
+		pAction = pAction->m_pNext;
+	}
+
+	char *szTarget;
+	pContext->LocalToString(params[4], &szTarget);
+	pAction->m_iTarget = AllocPooledString(szTarget);
+
+	return 1;
+}
+
 cell_t GetOutputActionTargetInput(IPluginContext *pContext, const cell_t *params)
 {
 	char *pOutput;
@@ -219,6 +285,38 @@ cell_t GetOutputActionTargetInput(IPluginContext *pContext, const cell_t *params
 	}
 
 	pContext->StringToLocal(params[4], params[5], pAction->m_iTargetInput.ToCStr());
+
+	return 1;
+}
+
+cell_t SetOutputActionTargetInput(IPluginContext *pContext, const cell_t *params)
+{
+	char *pOutput;
+	pContext->LocalToString(params[2], &pOutput);
+
+	CBaseEntity *pEntity = gamehelpers->ReferenceToEntity(params[1]);
+	if (!pEntity)
+	{
+		return pContext->ThrowNativeError("Invalid Entity index %i (%i)", gamehelpers->ReferenceToIndex(params[1]), params[1]);
+	}
+
+	CBaseEntityOutput *pEntityOutput = GetOutput(pEntity, pOutput);
+
+	if (pEntityOutput == NULL || pEntityOutput->m_ActionList == NULL)
+		return 0;
+
+	CEventAction *pAction = pEntityOutput->m_ActionList;
+	for(int i = 0; i < params[3]; i++)
+	{
+		if( pAction->m_pNext == NULL)
+			return 0;
+
+		pAction = pAction->m_pNext;
+	}
+
+	char *szTargetInput;
+	pContext->LocalToString(params[4], &szTargetInput);
+	pAction->m_iTargetInput = AllocPooledString(szTargetInput);
 
 	return 1;
 }
@@ -253,6 +351,38 @@ cell_t GetOutputActionParameter(IPluginContext *pContext, const cell_t *params)
 	return 1;
 }
 
+cell_t SetOutputActionParameter(IPluginContext *pContext, const cell_t *params)
+{
+	char *pOutput;
+	pContext->LocalToString(params[2], &pOutput);
+
+	CBaseEntity *pEntity = gamehelpers->ReferenceToEntity(params[1]);
+	if (!pEntity)
+	{
+		return pContext->ThrowNativeError("Invalid Entity index %i (%i)", gamehelpers->ReferenceToIndex(params[1]), params[1]);
+	}
+
+	CBaseEntityOutput *pEntityOutput = GetOutput(pEntity, pOutput);
+
+	if (pEntityOutput == NULL || pEntityOutput->m_ActionList == NULL)
+		return 0;
+
+	CEventAction *pAction = pEntityOutput->m_ActionList;
+	for(int i = 0; i < params[3]; i++)
+	{
+		if( pAction->m_pNext == NULL)
+			return 0;
+
+		pAction = pAction->m_pNext;
+	}
+
+	char *szParameter;
+	pContext->LocalToString(params[4], &szParameter);
+	pAction->m_iParameter = AllocPooledString(szParameter);
+
+	return 1;
+}
+
 cell_t GetOutputActionDelay(IPluginContext *pContext, const cell_t *params)
 {
 	char *pOutput;
@@ -279,6 +409,35 @@ cell_t GetOutputActionDelay(IPluginContext *pContext, const cell_t *params)
 	}
 
 	return sp_ftoc(pAction->m_flDelay);
+}
+
+cell_t SetOutputActionDelay(IPluginContext *pContext, const cell_t *params)
+{
+	char *pOutput;
+	pContext->LocalToString(params[2], &pOutput);
+
+	CBaseEntity *pEntity = gamehelpers->ReferenceToEntity(params[1]);
+	if (!pEntity)
+	{
+		return pContext->ThrowNativeError("Invalid Entity index %i (%i)", gamehelpers->ReferenceToIndex(params[1]), params[1]);
+	}
+
+	CBaseEntityOutput *pEntityOutput = GetOutput(pEntity, pOutput);
+
+	if (pEntityOutput == NULL || pEntityOutput->m_ActionList == NULL)
+		return 0;
+
+	CEventAction *pAction = pEntityOutput->m_ActionList;
+	for(int i = 0; i < params[3]; i++)
+	{
+		if( pAction->m_pNext == NULL)
+			return 0;
+
+		pAction = pAction->m_pNext;
+	}
+
+	pAction->m_flDelay = sp_ctof(params[4]);
+	return 1;
 }
 
 cell_t GetOutputActionTimesToFire(IPluginContext *pContext, const cell_t *params)
@@ -309,18 +468,77 @@ cell_t GetOutputActionTimesToFire(IPluginContext *pContext, const cell_t *params
 	return pAction->m_nTimesToFire;
 }
 
+cell_t SetOutputActionTimesToFire(IPluginContext *pContext, const cell_t *params)
+{
+	char *pOutput;
+	pContext->LocalToString(params[2], &pOutput);
+
+	CBaseEntity *pEntity = gamehelpers->ReferenceToEntity(params[1]);
+	if (!pEntity)
+	{
+		return pContext->ThrowNativeError("Invalid Entity index %i (%i)", gamehelpers->ReferenceToIndex(params[1]), params[1]);
+	}
+
+	CBaseEntityOutput *pEntityOutput = GetOutput(pEntity, pOutput);
+
+	if (pEntityOutput == NULL || pEntityOutput->m_ActionList == NULL)
+		return 0;
+
+	CEventAction *pPrev = nullptr;
+	CEventAction *pAction = pEntityOutput->m_ActionList;
+	for(int i = 0; i < params[3]; i++)
+	{
+		if( pAction->m_pNext == NULL)
+			return 0;
+
+		pPrev = pAction;
+		pAction = pAction->m_pNext;
+	}
+
+	if (params[4] == 0) // delete this action
+	{
+		/*if (pPrev != nullptr)
+		{
+			pPrev->m_pNext = pAction->m_pNext;
+		}
+		else
+		{
+			pEntityOutput->m_ActionList = pAction->m_pNext;
+		}
+
+		delete pAction; // TODO: implement new/delete for CEventActions */
+	}
+	else
+	{
+		pAction->m_nTimesToFire = params[4];
+	}
+
+	return 1;
+}
+
 const sp_nativeinfo_t MyNatives[] =
 {
 	{ "GetOutputActionCount",		GetOutputActionCount },
 	{ "GetOutputActionTarget",		GetOutputActionTarget },
+	{ "SetOutputActionTarget",		SetOutputActionTarget },
 	{ "GetOutputActionTargetInput",	GetOutputActionTargetInput },
+	{ "SetOutputActionTargetInput",	SetOutputActionTargetInput },
 	{ "GetOutputActionParameter",	GetOutputActionParameter },
+	{ "SetOutputActionParameter",	SetOutputActionParameter },
 	{ "GetOutputActionDelay",		GetOutputActionDelay },
+	{ "SetOutputActionDelay",		SetOutputActionDelay },
 	{ "GetOutputActionTimesToFire",	GetOutputActionTimesToFire },
+	{ "SetOutputActionTimesToFire",	SetOutputActionTimesToFire },
 	{ NULL, NULL },
 };
 
 void Outputinfo::SDK_OnAllLoaded()
 {
 	sharesys->AddNatives(myself, MyNatives);
+}
+
+bool Outputinfo::SDK_OnMetamodLoad(ISmmAPI *ismm, char *error, size_t maxlen, bool late)
+{
+	GET_V_IFACE_CURRENT(GetServerFactory, servertools, IServerTools, VSERVERTOOLS_INTERFACE_VERSION);
+	return true;
 }
