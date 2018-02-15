@@ -142,6 +142,40 @@ native int GetOutputActionTimesToFire(int entity, const char[] output, int index
 native bool SetOutputActionTimesToFire(int entity, const char[] output, int index, int value);
 
 /**
+ * Inserts a new action to an entity's output at a given index
+ *
+ * @param entity		Entity to use
+ * @param output		The name of the output (e.g. m_OnTrigger)
+ * @param target		Name of the entity(s) to cause the action in
+ * @param targetintput	Name of the action to fire
+ * @param parameter		The parameter to send, 0 if none
+ * @param delay			Number of seconds to wait before firing the action
+ * @param timestofire	Amount of times left for an action to fire, action is deleted when this reaches 0
+ * @param index			Index that action should be inserted at, actions after this index are increased
+
+ * @return				True on success, false otherwise
+ */
+native bool InsertOutputAction(int entity,
+								const char[] output,
+								const char[] target,
+								const char[] targetinput,
+								const char[] parameter,
+								float delay,
+								int timestofire,
+								int index = 0);
+
+/**
+ * Removes an action from an entity's output at a given index
+ *
+ * @param entity		Entity to use
+ * @param output		The name of the output (e.g. m_OnTrigger)
+ * @param index			The index of the action to use
+
+ * @return				True on success, false otherwise
+ */
+native bool RemoveOutputAction(int entity, const char[] output, int index);
+								
+/**
  * Do not edit below this line!
  */
 public Extension __ext_outputinfo =
@@ -174,5 +208,7 @@ public __ext_outputinfo_SetNTVOptional()
 	MarkNativeAsOptional("SetOutputActionDelay");
 	MarkNativeAsOptional("GetOutputActionTimesToFire");
 	MarkNativeAsOptional("SetOutputActionTimesToFire");
+	MarkNativeAsOptional("InsertOutputAction");
+	MarkNativeAsOptional("RemoveOutputAction");
 }
 #endif

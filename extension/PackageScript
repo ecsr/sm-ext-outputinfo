@@ -9,6 +9,7 @@ builder.SetBuildFolder('package')
 folder_list = [
   'addons/sourcemod/extensions',
   'addons/sourcemod/scripting/include',
+  'addons/sourcemod/gamedata',
 ]
 
 # Create the distribution folder hierarchy.
@@ -29,6 +30,11 @@ def CopyFiles(src, dest, files):
 # Include files
 CopyFiles('../addons/sourcemod/scripting/include', 'addons/sourcemod/scripting/include',
   [ 'outputinfo.inc', ]
+)
+
+# GameData files
+CopyFiles('../addons/sourcemod/gamedata', 'addons/sourcemod/gamedata',
+  [ 'outputinfo.games.txt', ]
 )
 
 # Copy binaries.

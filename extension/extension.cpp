@@ -41,17 +41,22 @@ Outputinfo g_Outputinfo;		/**< Global singleton for extension's main interface *
 SMEXT_LINK(&g_Outputinfo);
 
 #include <isaverestore.h>
+#include <mempool.h>
 #include <variant_t.h>
 #include <itoolentity.h>
 
+typedef int* (*AllocFunction)();
+
 IServerTools *servertools = nullptr;
+CUtlMemoryPool *g_pEntityListPool = nullptr;
+AllocFunction g_EntityListPool_Alloc = nullptr;
 
 #define EVENT_FIRE_ALWAYS	-1
 
 class CEventAction
 {
 public:
-	CEventAction(const char *ActionData = NULL);
+	CEventAction(const char *ActionData = NULL) { m_iIDStamp = 0; };
 
 	string_t m_iTarget; // name of the entity(s) to cause the action in
 	string_t m_iTargetInput; // the name of the action to fire
@@ -64,13 +69,22 @@ public:
 	static int s_iNextIDStamp;
 
 	CEventAction *m_pNext;
-/*
+
 	// allocates memory from engine.MPool/g_EntityListPool
-	static void *operator new( size_t stAllocateBlock );
-	static void *operator new( size_t stAllocateBlock, int nBlockUse, const char *pFileName, int nLine );
-	static void operator delete( void *pMem );
+	static void *operator new(size_t stAllocateBlock)
+	{
+		return g_EntityListPool_Alloc();
+	}
+	static void *operator new(size_t stAllocateBlock, int nBlockUse, const char *pFileName, int nLine)
+	{
+		return g_EntityListPool_Alloc();
+	}
+	static void operator delete(void *pMem)
+	{
+		g_pEntityListPool->Free(pMem);
+	}
 	static void operator delete( void *pMem , int nBlockUse, const char *pFileName, int nLine ) { operator delete(pMem); }
-*/
+
 	DECLARE_SIMPLE_DATADESC();
 
 };
@@ -78,7 +92,6 @@ public:
 class CBaseEntityOutput
 {
 public:
-
 	~CBaseEntityOutput();
 
 	void ParseEventAction( const char *EventData );
@@ -109,6 +122,12 @@ private:
 	CBaseEntityOutput( CBaseEntityOutput& ); // protect from accidental copying
 };
 
+void CBaseEntityOutput::AddEventAction(CEventAction *pEventAction)
+{
+	pEventAction->m_pNext = m_ActionList;
+	m_ActionList = pEventAction;
+}
+
 int CBaseEntityOutput::NumberOfElements(void)
 {
 	int count = 0;
@@ -116,6 +135,7 @@ int CBaseEntityOutput::NumberOfElements(void)
 	{
 		count++;
 	}
+
 	return count;
 }
 
@@ -497,7 +517,7 @@ cell_t SetOutputActionTimesToFire(IPluginContext *pContext, const cell_t *params
 
 	if (params[4] == 0) // delete this action
 	{
-		/*if (pPrev != nullptr)
+		if (pPrev != nullptr)
 		{
 			pPrev->m_pNext = pAction->m_pNext;
 		}
@@ -506,11 +526,108 @@ cell_t SetOutputActionTimesToFire(IPluginContext *pContext, const cell_t *params
 			pEntityOutput->m_ActionList = pAction->m_pNext;
 		}
 
-		delete pAction; // TODO: implement new/delete for CEventActions */
+		delete pAction;
 	}
 	else
 	{
 		pAction->m_nTimesToFire = params[4];
+	}
+
+	return 1;
+}
+
+cell_t RemoveOutputAction(IPluginContext *pContext, const cell_t *params)
+{
+	char *pOutput;
+	pContext->LocalToString(params[2], &pOutput);
+
+	CBaseEntity *pEntity = gamehelpers->ReferenceToEntity(params[1]);
+	if (!pEntity)
+	{
+		return pContext->ThrowNativeError("Invalid Entity index %i (%i)", gamehelpers->ReferenceToIndex(params[1]), params[1]);
+	}
+
+	CBaseEntityOutput *pEntityOutput = GetOutput(pEntity, pOutput);
+
+	if (pEntityOutput == NULL || pEntityOutput->m_ActionList == NULL)
+		return 0;
+
+	CEventAction *pPrev = nullptr;
+	CEventAction *pAction = pEntityOutput->m_ActionList;
+	for(int i = 0; i < params[3]; i++)
+	{
+		if( pAction->m_pNext == NULL)
+			return 0;
+
+		pPrev = pAction;
+		pAction = pAction->m_pNext;
+	}
+
+	if (pPrev != nullptr)
+	{
+		pPrev->m_pNext = pAction->m_pNext;
+	}
+	else
+	{
+		pEntityOutput->m_ActionList = pAction->m_pNext;
+	}
+
+	delete pAction;
+
+	return 1;
+}
+
+cell_t InsertOutputAction(IPluginContext *pContext, const cell_t *params)
+{
+	char *pOutput;
+	pContext->LocalToString(params[2], &pOutput);
+
+	CBaseEntity *pEntity = gamehelpers->ReferenceToEntity(params[1]);
+	if (!pEntity)
+	{
+		return pContext->ThrowNativeError("Invalid Entity index %i (%i)", gamehelpers->ReferenceToIndex(params[1]), params[1]);
+	}
+
+	CBaseEntityOutput *pEntityOutput = GetOutput(pEntity, pOutput);
+
+	if (pEntityOutput == NULL || pEntityOutput->m_ActionList == NULL)
+		return 0;
+
+	CEventAction *pNewAction = new CEventAction;
+	char *buffer;
+
+	pContext->LocalToString(params[3], &buffer);
+	pNewAction->m_iTarget = AllocPooledString(buffer);
+
+	pContext->LocalToString(params[4], &buffer);
+	pNewAction->m_iTargetInput = AllocPooledString(buffer);
+
+	pContext->LocalToString(params[5], &buffer);
+	pNewAction->m_iParameter = AllocPooledString(buffer);
+
+	pNewAction->m_flDelay = sp_ctof(params[6]);
+
+	pNewAction->m_nTimesToFire = params[7];
+
+	if(params[8] == 0)
+	{
+		pEntityOutput->AddEventAction(pNewAction);
+	}
+	else
+	{
+		CEventAction *pPrev = nullptr;
+		CEventAction *pAction = pEntityOutput->m_ActionList;
+		for( int i = 0; i < params[3]; i++ )
+		{
+			if( pAction->m_pNext == NULL )
+				return 0;
+
+			pPrev = pAction;
+			pAction = pAction->m_pNext;
+		}
+
+		pPrev->m_pNext = pNewAction;
+		pNewAction->m_pNext = pAction;
 	}
 
 	return 1;
@@ -529,8 +646,40 @@ const sp_nativeinfo_t MyNatives[] =
 	{ "SetOutputActionDelay",		SetOutputActionDelay },
 	{ "GetOutputActionTimesToFire",	GetOutputActionTimesToFire },
 	{ "SetOutputActionTimesToFire",	SetOutputActionTimesToFire },
+	{ "InsertOutputAction",			InsertOutputAction },
+	{ "RemoveOutputAction",			RemoveOutputAction },
 	{ NULL, NULL },
 };
+
+bool Outputinfo::SDK_OnLoad(char *error, size_t maxlength, bool late)
+{
+	IGameConfig *pGameConf;
+
+	if(!gameconfs->LoadGameConfigFile("outputinfo.games", &pGameConf, error, maxlength))
+	{
+		return false;
+	}
+
+	pGameConf->GetAddress("g_EntityListPool", reinterpret_cast<void**>(&g_pEntityListPool));
+	if(g_pEntityListPool == nullptr)
+	{
+		snprintf(error, maxlength, "Failed to obtain g_pEntityListPool from gamedata");
+		gameconfs->CloseGameConfigFile(pGameConf);
+		return false;
+	}
+
+	pGameConf->GetMemSig("g_EntityListPool.Alloc", reinterpret_cast<void**>(&g_EntityListPool_Alloc));
+	if(g_EntityListPool_Alloc == nullptr)
+	{
+		snprintf( error, maxlength, "Failed to obtain g_EntityListPool.Alloc from gamedata" );
+		gameconfs->CloseGameConfigFile(pGameConf);
+		return false;
+	}
+
+	gameconfs->CloseGameConfigFile(pGameConf);
+
+	return true;
+}
 
 void Outputinfo::SDK_OnAllLoaded()
 {
