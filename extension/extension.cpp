@@ -45,11 +45,14 @@ SMEXT_LINK(&g_Outputinfo);
 #include <variant_t.h>
 #include <itoolentity.h>
 
+IServerTools *servertools = nullptr;
+
+#if SOURCE_ENGINE == SE_CSGO
 typedef int* (*AllocFunction)();
 
-IServerTools *servertools = nullptr;
 CUtlMemoryPool *g_pEntityListPool = nullptr;
 AllocFunction g_EntityListPool_Alloc = nullptr;
+#endif
 
 #define EVENT_FIRE_ALWAYS	-1
 
@@ -71,6 +74,7 @@ public:
 	CEventAction *m_pNext;
 
 	// allocates memory from engine.MPool/g_EntityListPool
+#if SOURCE_ENGINE == SE_CSGO
 	static void *operator new(size_t stAllocateBlock)
 	{
 		return g_EntityListPool_Alloc();
@@ -83,7 +87,11 @@ public:
 	{
 		g_pEntityListPool->Free(pMem);
 	}
-	static void operator delete( void *pMem , int nBlockUse, const char *pFileName, int nLine ) { operator delete(pMem); }
+	static void operator delete( void *pMem , int nBlockUse, const char *pFileName, int nLine )
+	{
+		operator delete(pMem);
+	}
+#endif
 
 	DECLARE_SIMPLE_DATADESC();
 
@@ -538,6 +546,7 @@ cell_t SetOutputActionTimesToFire(IPluginContext *pContext, const cell_t *params
 
 cell_t RemoveOutputAction(IPluginContext *pContext, const cell_t *params)
 {
+#if SOURCE_ENGINE == SE_CSGO
 	char *pOutput;
 	pContext->LocalToString(params[2], &pOutput);
 
@@ -575,10 +584,14 @@ cell_t RemoveOutputAction(IPluginContext *pContext, const cell_t *params)
 	delete pAction;
 
 	return 1;
+#else
+	return pContext->ThrowNativeError( "This feature is unsupported on this version of the engine." );
+#endif
 }
 
 cell_t InsertOutputAction(IPluginContext *pContext, const cell_t *params)
 {
+#if SOURCE_ENGINE == SE_CSGO
 	char *pOutput;
 	pContext->LocalToString(params[2], &pOutput);
 
@@ -631,6 +644,9 @@ cell_t InsertOutputAction(IPluginContext *pContext, const cell_t *params)
 	}
 
 	return 1;
+#else
+	return pContext->ThrowNativeError( "This feature is unsupported on this version of the engine." );
+#endif
 }
 
 const sp_nativeinfo_t MyNatives[] =
@@ -653,6 +669,7 @@ const sp_nativeinfo_t MyNatives[] =
 
 bool Outputinfo::SDK_OnLoad(char *error, size_t maxlength, bool late)
 {
+#if SOURCE_ENGINE == SE_CSGO
 	IGameConfig *pGameConf;
 
 	if(!gameconfs->LoadGameConfigFile("outputinfo.games", &pGameConf, error, maxlength))
@@ -677,6 +694,7 @@ bool Outputinfo::SDK_OnLoad(char *error, size_t maxlength, bool late)
 	}
 
 	gameconfs->CloseGameConfigFile(pGameConf);
+#endif
 
 	return true;
 }
