@@ -41,14 +41,24 @@ Outputinfo g_Outputinfo;		/**< Global singleton for extension's main interface *
 SMEXT_LINK(&g_Outputinfo);
 
 #include <isaverestore.h>
+
+#ifdef PLATFORM_WINDOWS
 #include <mempool.h>
+#else
+#include <mempool_hack.h>
+#endif
+
 #include <variant_t.h>
 #include <itoolentity.h>
 
 IServerTools *servertools = nullptr;
 
 #if SOURCE_ENGINE == SE_CSGO
+#ifdef PLATFORM_WINDOWS
 typedef int* (*AllocFunction)();
+#else
+typedef int* (__thiscall* AllocFunction)( );
+#endif
 
 CUtlMemoryPool *g_pEntityListPool = nullptr;
 AllocFunction g_EntityListPool_Alloc = nullptr;
@@ -77,11 +87,19 @@ public:
 #if SOURCE_ENGINE == SE_CSGO
 	static void *operator new(size_t stAllocateBlock)
 	{
+#ifdef PLATFORM_WINDOWS
 		return g_EntityListPool_Alloc();
+#else
+		return g_EntityListPool_Alloc( g_pEntityListPool );
+#endif
 	}
 	static void *operator new(size_t stAllocateBlock, int nBlockUse, const char *pFileName, int nLine)
 	{
+#ifdef PLATFORM_WINDOWS
 		return g_EntityListPool_Alloc();
+#else
+		return g_EntityListPool_Alloc( g_pEntityListPool );
+#endif
 	}
 	static void operator delete(void *pMem)
 	{
@@ -685,6 +703,7 @@ bool Outputinfo::SDK_OnLoad(char *error, size_t maxlength, bool late)
 		return false;
 	}
 
+#ifdef PLATFORM_WINDOWS
 	pGameConf->GetMemSig("g_EntityListPool.Alloc", reinterpret_cast<void**>(&g_EntityListPool_Alloc));
 	if(g_EntityListPool_Alloc == nullptr)
 	{
@@ -692,6 +711,15 @@ bool Outputinfo::SDK_OnLoad(char *error, size_t maxlength, bool late)
 		gameconfs->CloseGameConfigFile(pGameConf);
 		return false;
 	}
+#else
+	pGameConf->GetMemSig( "CUtlMemoryPool_Alloc", reinterpret_cast<void**>( &g_EntityListPool_Alloc ) );
+	if( g_EntityListPool_Alloc == nullptr )
+	{
+		snprintf( error, maxlength, "Failed to obtain CUtlMemoryPool_Alloc from gamedata" );
+		gameconfs->CloseGameConfigFile( pGameConf );
+		return false;
+	}
+#endif
 
 	gameconfs->CloseGameConfigFile(pGameConf);
 #endif
