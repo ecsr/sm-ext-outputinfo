@@ -57,7 +57,7 @@ IServerTools *servertools = nullptr;
 #ifdef PLATFORM_WINDOWS
 typedef int* (*AllocFunction)();
 #else
-typedef int* (__thiscall* AllocFunction)( );
+typedef int* (*AllocFunction)(void*);
 #endif
 
 CUtlMemoryPool *g_pEntityListPool = nullptr;
