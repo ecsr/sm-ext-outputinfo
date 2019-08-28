@@ -1,5 +1,5 @@
 # sm-ext-outputinfo
-Original plugin by LivingInPortal: https://github.com/LivingInPortal/sm-ext-outputinfo
+Original extension by BotoX:  [url]https://gogs.botox.bz/CSSZombieEscape/sm-ext-outputinfo[/url]
 
 I've updated the extension and added some more functionality. 
 The extension now supports getting the amount of times to fire an action, and can also set the values of any of the fields of the actions.
