@@ -19,7 +19,6 @@
 				}
 			}
 		}
-		
 		"Signatures"
 		{
 			"g_EntityListPool.Alloc"

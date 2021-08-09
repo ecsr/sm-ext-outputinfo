@@ -217,7 +217,7 @@ class ExtensionConfig(object):
         'uuid.lib',
         'odbc32.lib',
         'odbccp32.lib',
-      ] 
+      ]
 
     # Optimization
     if builder.options.opt == '1':
@@ -264,7 +264,7 @@ class ExtensionConfig(object):
     cxx.includes += [
       os.path.join(self.sm_root, 'public'),
     ]
-	
+
   def ConfigureForHL2(self, binary, sdk):
     compiler = binary.compiler
 
@@ -406,7 +406,7 @@ class ExtensionConfig(object):
     project = context.compiler.LibraryProject(name)
     self.ConfigureForExtension(context, project.compiler)
     return project
-	
+
   def HL2Config(self, project, name, sdk):
     binary = project.Configure(name, '{0} - {1}'.format(self.tag, sdk.name))
     return self.ConfigureForHL2(binary, sdk)

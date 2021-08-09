@@ -25,7 +25,7 @@ native int GetOutputActionCount(int entity, const char[] output);
  * @param index			The index of the action to use
  * @param target		Output string buffer
  * @param maxlen		Max length of output string buffer
- 
+ *
  * @return				True on success, false otherwise
  */
 native bool GetOutputActionTarget(int entity, const char[] output, int index, char[] target, int maxlen);
@@ -38,7 +38,7 @@ native bool GetOutputActionTarget(int entity, const char[] output, int index, ch
  * @param output		The name of the output (e.g. m_OnTrigger)
  * @param index			The index of the action to use
  * @param target		Name of target
- 
+ *
  * @return				True on success, false otherwise
  */
 native bool SetOutputActionTarget(int entity, const char[] output, int index, const char[] target);
@@ -51,7 +51,7 @@ native bool SetOutputActionTarget(int entity, const char[] output, int index, co
  * @param index			The index of the action to use
  * @param targetinput	Output string buffer
  * @param maxlen		Max length of output string buffer
- 
+ *
  * @return				True on success, false otherwise
  */
 native bool GetOutputActionTargetInput(int entity, const char[] output, int index, char[] targetinput, int maxlen);
@@ -63,7 +63,7 @@ native bool GetOutputActionTargetInput(int entity, const char[] output, int inde
  * @param output		The name of the output (e.g. m_OnTrigger)
  * @param index			The index of the action to use
  * @param targetinput	Name of action
- 
+ *
  * @return				True on success, false otherwise
  */
 native bool SetOutputActionTargetInput(int entity, const char[] output, int index, const char[] targetinput);
@@ -76,7 +76,7 @@ native bool SetOutputActionTargetInput(int entity, const char[] output, int inde
  * @param index			The index of the action to use
  * @param parameter		Output string buffer
  * @param maxlen		Max length of output string buffer
- 
+ *
  * @return				True on success, false otherwise
  */
 native bool GetOutputActionParameter(int entity, const char[] output, int index, char[] parameter, int maxlen);
@@ -88,7 +88,7 @@ native bool GetOutputActionParameter(int entity, const char[] output, int index,
  * @param output		The name of the output (e.g. m_OnTrigger)
  * @param index			The index of the action to use
  * @param parameter		Parameter to send
- 
+ *
  * @return				True on success, false otherwise
  */
 native bool SetOutputActionParameter(int entity, const char[] output, int index, const char[] parameter);
@@ -99,7 +99,7 @@ native bool SetOutputActionParameter(int entity, const char[] output, int index,
  * @param entity		Entity to use
  * @param output		The name of the output (e.g. m_OnTrigger)
  * @param index			The index of the action to use
- 
+ *
  * @return				Delay in seconds, or -1.0 on failure
  */
 native float GetOutputActionDelay(int entity, const char[] output, int index);
@@ -111,7 +111,7 @@ native float GetOutputActionDelay(int entity, const char[] output, int index);
  * @param output		The name of the output (e.g. m_OnTrigger)
  * @param index			The index of the action to use
  * @param value			Delay in seconds
-
+ *
  * @return				True on success, false otherwise
  */
 native bool SetOutputActionDelay(int entity, const char[] output, int index, float value);
@@ -123,7 +123,7 @@ native bool SetOutputActionDelay(int entity, const char[] output, int index, flo
  * @param entity		Entity to use
  * @param output		The name of the output (e.g. m_OnTrigger)
  * @param index			The index of the action to use
- 
+ *
  * @return				How many times to fire, or EVENT_FIRE_ALWAYS if it fires indefinitely
  */
 native int GetOutputActionTimesToFire(int entity, const char[] output, int index);
@@ -135,8 +135,8 @@ native int GetOutputActionTimesToFire(int entity, const char[] output, int index
  * @param entity		Entity to use
  * @param output		The name of the output (e.g. m_OnTrigger)
  * @param index			The index of the action to use
- * @param value			How many times to fire, or 
-
+ * @param value			How many times to fire, or
+ *
  * @return				True on success, false otherwise
  */
 native bool SetOutputActionTimesToFire(int entity, const char[] output, int index, int value);
@@ -152,7 +152,7 @@ native bool SetOutputActionTimesToFire(int entity, const char[] output, int inde
  * @param delay			Number of seconds to wait before firing the action
  * @param timestofire	Amount of times left for an action to fire, action is deleted when this reaches 0
  * @param index			Index that action should be inserted at, actions after this index are increased
-
+ *
  * @return				True on success, false otherwise
  */
 native bool InsertOutputAction(int entity,
@@ -170,11 +170,11 @@ native bool InsertOutputAction(int entity,
  * @param entity		Entity to use
  * @param output		The name of the output (e.g. m_OnTrigger)
  * @param index			The index of the action to use
-
+ *
  * @return				True on success, false otherwise
  */
 native bool RemoveOutputAction(int entity, const char[] output, int index);
-								
+
 /**
  * Do not edit below this line!
  */

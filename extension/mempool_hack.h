@@ -27,11 +27,11 @@ public:
 	void*		AllocZero();	// Allocate the element size you specified in the constructor, zero the memory before construction
 	void*		AllocZero( size_t amount );
 	void		Free(void *pMem);
-	
+
 	// Frees everything
 	void		Clear();
 
-	// Error reporting... 
+	// Error reporting...
 	static void SetErrorReportFunc( MemoryPoolReportFunc_t func );
 
 	// returns number of allocated blocks
